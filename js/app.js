@@ -126,20 +126,128 @@ function agregarPlatillo(producto) {
     // console.log(resultado);
   }
 
-  console.log(cliente.pedido);
+  limpiarHTML();
+  if (cliente.pedido.length) {
+    actualizarResumen();
+  } else {
+    mensajePedidoVacio();
+  }
+  // actualizarResumen();
+
+  // console.log(cliente.pedido);
 
   // else {
   //   const resultado = pedido.filter((articulo) => articulo.id !== producto.id);
   //   cliente.pedido = resultado;
   // }
+}
 
-  // limpiarHTML();
+function actualizarResumen() {
+  const contenido = document.querySelector("#resumen .contenido");
 
-  // if (cliente.pedido.length) {
-  //   actualizarResumen();
-  // } else {
-  //   mensajePedidoVacio();
-  // }
+  const resumen = document.createElement("DIV");
+  resumen.classList.add("col-md-6", "card", "py-5", "px-3", "shadow");
+
+  // Mostrar la Mesa
+
+  const mesa = document.createElement("P");
+  mesa.textContent = "Mesa: ";
+  mesa.classList.add("fw-bold");
+
+  const mesaSpan = document.createElement("SPAN");
+  mesaSpan.textContent = cliente.mesa;
+  mesaSpan.classList.add("fw-normal");
+  mesa.appendChild(mesaSpan);
+
+  // Hora
+  const hora = document.createElement("P");
+  hora.textContent = "Hora: ";
+  hora.classList.add("fw-bold");
+
+  const horaSpan = document.createElement("SPAN");
+  horaSpan.textContent = cliente.hora;
+  horaSpan.classList.add("fw-normal");
+  hora.appendChild(horaSpan);
+
+  // Mostrar los platillos Consumidos!
+
+  const heading = document.createElement("H3");
+  heading.textContent = "Platillos Pedidos";
+  heading.classList.add("my-4", "text-center");
+
+  const grupo = document.createElement("UL");
+  grupo.classList.add("list-group");
+
+  // Producto pedido
+  const { pedido } = cliente;
+  pedido.forEach((articulo) => {
+    const { nombre, cantidad, precio, id } = articulo;
+
+    const lista = document.createElement("LI");
+    lista.classList.add("list-group-item");
+
+    const nombreEl = document.createElement("h4");
+    nombreEl.classList.add("text-center", "my-4");
+    nombreEl.textContent = nombre;
+
+    const cantidadEl = document.createElement("P");
+    cantidadEl.classList.add("fw-bold");
+    cantidadEl.textContent = "Cantidad es: ";
+
+    const cantidadValor = document.createElement("SPAN");
+    cantidadValor.classList.add("fw-normal");
+    cantidadValor.textContent = cantidad;
+
+    const precioEl = document.createElement("P");
+    precioEl.classList.add("fw-bold");
+    precioEl.textContent = "Precio es: ";
+
+    const precioValor = document.createElement("SPAN");
+    precioValor.classList.add("fw-normal");
+    precioValor.textContent = `$${precio}`;
+
+    const subtotalEl = document.createElement("P");
+    subtotalEl.classList.add("fw-bold");
+    subtotalEl.textContent = "Subtotal hasta el momento: ";
+
+    const subtotalValor = document.createElement("SPAN");
+    subtotalValor.classList.add("fw-normal");
+    subtotalValor.textContent = calcularSubtotal(articulo);
+
+    // Botón para Eliminar
+    const btnEliminar = document.createElement("BUTTON");
+    btnEliminar.classList.add("btn", "btn-danger");
+    btnEliminar.textContent = "Eliminar Pedido?";
+
+    // Funcion para eliminar ese contenido
+    btnEliminar.onclick = function () {
+      eliminarProducto(id);
+    };
+
+    // Agregar los Labels a sus contenedores
+    cantidadEl.appendChild(cantidadValor);
+    precioEl.appendChild(precioValor);
+    subtotalEl.appendChild(subtotalValor);
+
+    lista.appendChild(nombreEl);
+    lista.appendChild(cantidadEl);
+    lista.appendChild(precioEl);
+    lista.appendChild(subtotalEl);
+    lista.appendChild(btnEliminar);
+
+    grupo.appendChild(lista);
+  });
+
+  resumen.appendChild(mesa);
+  resumen.appendChild(hora);
+  resumen.appendChild(heading);
+  resumen.appendChild(grupo);
+
+  // agregar al contenido
+  contenido.appendChild(resumen);
+
+  // Mostrar Calculadora de Propinas
+  formularioPropinas();
 }
 
 function limpiarHTML() {
@@ -147,4 +255,37 @@ function limpiarHTML() {
   while (contenido.firstChild) {
     contenido.removeChild(contenido.firstChild);
   }
+}
+
+function calcularSubtotal(articulo) {
+  const { cantidad, precio } = articulo;
+  return `$ ${cantidad * precio}`;
+}
+
+function eliminarProducto(id) {
+  const { pedido } = cliente;
+  cliente.pedido = pedido.filter((articulo) => articulo.id !== id);
+
+  limpiarHTML();
+
+  if (cliente.pedido.length) {
+    actualizarResumen();
+  } else {
+    mensajePedidoVacio();
+  }
+
+  // El producto se eliminó, por lo tanto lo vamos a regresar a como estaba en un inicio
+  const productoEliminado = `#producto-${id}`;
+  const inputEliminado = document.querySelector(productoEliminado);
+  inputEliminado.value = 0;
+}
+
+function mensajePedidoVacio() {
+  const contenido = document.querySelector("#resumen .contenido");
+
+  const texto = document.createElement("P");
+  texto.classList.add("text-center");
+  texto.textContent = "Añade Productos al Pedido";
+
+  contenido.appendChild(texto);
 }
