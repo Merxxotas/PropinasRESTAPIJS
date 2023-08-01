@@ -100,5 +100,51 @@ function mostrarPlatillos(platillos) {
 }
 
 function agregarPlatillo(producto) {
-  console.log(producto);
+  let { pedido } = cliente;
+  // console.log(producto);
+  if (producto.cantidad > 0) {
+    // Comprueba si el platillo ya esta en el carrito
+    if (pedido.some((articulo) => articulo.id === producto.id)) {
+      // Iterar para actualizar la cantidad
+      const pedidoActualizado = pedido.map((articulo) => {
+        if (articulo.id === producto.id) {
+          articulo.cantidad = producto.cantidad;
+        }
+        return articulo;
+      });
+
+      // Se asigna el nuevo array, a cliente.pedido
+      cliente.pedido = [...pedidoActualizado];
+    } else {
+      // En caso de que el articulo no exista, es nuevo y se agrega
+      cliente.pedido = [...pedido, producto];
+    }
+  } else {
+    // console.log("NO ES MAYOR A 0");
+    const resultado = pedido.filter((articulo) => articulo.id !== producto.id);
+    cliente.pedido = resultado;
+    // console.log(resultado);
+  }
+
+  console.log(cliente.pedido);
+
+  // else {
+  //   const resultado = pedido.filter((articulo) => articulo.id !== producto.id);
+  //   cliente.pedido = resultado;
+  // }
+
+  // limpiarHTML();
+
+  // if (cliente.pedido.length) {
+  //   actualizarResumen();
+  // } else {
+  //   mensajePedidoVacio();
+  // }
+}
+
+function limpiarHTML() {
+  const contenido = document.querySelector("#resumen .contenido");
+  while (contenido.firstChild) {
+    contenido.removeChild(contenido.firstChild);
+  }
 }
